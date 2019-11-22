@@ -4,8 +4,7 @@ Monte-Carlo Tree Search implementation in existing swarms code. The code that th
 The purpose of my project is to implement Monte-Carlo Tree Search into the existing swarms code.
 
 # Classes Added/ Updated:
-
-Tree.java
-Node.java
-Simulation.java
-InnerSimulation.java
+- Tree.java
+- Node.java
+- Simulation.java
+- InnerSimulation.java
