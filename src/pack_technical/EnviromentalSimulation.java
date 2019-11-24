@@ -32,8 +32,8 @@ public class EnviromentalSimulation extends Thread {
     AI_type simulator;
     PApplet parent;
     PatrollingScheme scheme ;
-    ArrayList<InnerSimulation> simulations = new ArrayList<>();
     ArrayList<InnerSimulation> historyOfSimulations = new ArrayList<>();
+    ArrayList<int[]> cords;
 
     ArrayList<int[]> historyOfMovement = new ArrayList<>();
     boolean draw = true;
@@ -48,6 +48,7 @@ public class EnviromentalSimulation extends Thread {
     public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders,PApplet parent,ArrayList<int[]> cords,ArrayList<Boid_generic> attackers,CollisionHandler handler) throws IOException {
         this.parent=parent;
         this.handler=handler;
+        this.cords = cords;
 
         simulator = new AI_type(randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f,0.04f,"Simulator2000");
 
@@ -87,20 +88,16 @@ public class EnviromentalSimulation extends Thread {
         }
         startTime=System.nanoTime();
 
-        for(int i=0;i<10;i++){
-            simulations.add(new InnerSimulation(simulator, defenders, cords, attackers, handler,parent));
-        }
-
-        MCT = new Tree(simulations.get(0));
+        MCT = new Tree(new InnerSimulation(simulator, copyTheStateOfAttackBoids(SimulationClones), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent) );
         new Thread(this).start();
     }
 
     public void setAiToInnerSimulation(AI_type t){
-        simulations.get(0).setAii(t);
+        MCT.root.simulation.setAii(t);
     }
 
     public boolean isSimulating(){
-        return simulations.get(0).isSimulating();
+        return MCT.root.simulation.isSimulating();
     }
 
     public static float randFloat(float min, float max) {
@@ -110,19 +107,28 @@ public class EnviromentalSimulation extends Thread {
     }
 
     public void restartTheSimulation(ArrayList<Boid_generic> attackBoids,ArrayList<Boid_generic> defenders){
-        simulations.get(0).restartTheSimulation(attackBoids,defenders);
+        MCT.root.simulation.restartTheSimulation(attackBoids,defenders);
     }
 
     public void setSimulating(boolean k){
-        simulations.get(0).setSimulating(k);
+        MCT.root.simulation.setSimulating(k);
     }
 
     public PVector reutrnTargetVecotr(){
         Node<InnerSimulation> bestSim = MCT.bestAvgVal(MCT.root, MCT.root);
         PVector bestVector = bestSim.simulation.MrLeandroVector;
-        MCT.trimTree(bestSim);
+        try {
+            MCT.root = new Node(new InnerSimulation(simulator, copyTheStateOfAttackBoids(SimulationClones), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent), 0, "root");
+        }catch(Exception e){}
+
         //System.out.println(bestVector);
+        System.out.println("Location of attacker: " + attackBoids.get(0).location);
         return bestVector;
+    }
+
+    public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker){
+        SimulationClones = copyTheStateOfAttackBoids(defenders);
+        attackBoids = copyTheStateOfAttackBoids(attacker);
     }
 
     public void run(){
@@ -133,7 +139,7 @@ public class EnviromentalSimulation extends Thread {
                 //System.out.println("EXPANDED NODE> " + n.name);
 
                 InnerSimulation s = n.simulation;
-                InnerSimulation newSim = new InnerSimulation(s.ai, copyTheStateOfAttackBoids(SimulationClones), s.cords, copyTheStateOfAttackBoids(attackBoids), s.handler, s.parent);
+                InnerSimulation newSim = new InnerSimulation(simulator, s.copyTheStateOfAttackBoids(SimulationClones), s.cords, s.copyTheStateOfAttackBoids(attackBoids), s.handler, s.parent);
                 newSim.restartTheSimulation(newSim.copyTheStateOfAttackBoids(attackBoids), newSim.copyTheStateOfAttackBoids(SimulationClones));
                 newSim.run1();
 

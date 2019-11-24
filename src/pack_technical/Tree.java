@@ -9,7 +9,7 @@ public class Tree
     }
 
     public Node<InnerSimulation> UCT(Node<InnerSimulation> bestNode, Node<InnerSimulation> currentNode){
-        //System.out.println("CURRENT NODE> " + currentNode.name + "\nagv  " + currentNode.avgEstimatedValue + "\nuct  " + currentNode.uct);
+        ///System.out.println("CURRENT NODE> " + currentNode.name + "\nagv  " + currentNode.avgEstimatedValue + "\nuct  " + currentNode.uct);
         if(currentNode.parent != null) {
             //currentNode.updateUCT();
         }
