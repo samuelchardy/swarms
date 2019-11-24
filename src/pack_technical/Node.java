@@ -54,7 +54,11 @@ public class Node<InnerSimulation>
     }
 
     public double calcUCT(int parentVisits){
-        return this.avgEstimatedValue + ( 1.414*Math.sqrt( 2*Math.log(parentVisits) / this.timesVisited ) );
+        if(parent != null) {
+            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.parent.timesVisited)));
+        }else{
+            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.timesVisited+1)));
+        }
     }
 
     /**
@@ -68,7 +72,7 @@ public class Node<InnerSimulation>
                 this.avgEstimatedValue += (child.avgEstimatedValue / children.size());
             }
         }
-        //updateUCT();
+        updateUCT();
     }
 
 

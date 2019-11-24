@@ -60,6 +60,8 @@ public class InnerSimulation  {
         }
         scheme.restartIterator();
 
+        System.out.println(attackBoidss.get(0).getLocation());
+
         float shortestDistance = 3000;
         int counter = 0;
         int positionInTheList = 0;
