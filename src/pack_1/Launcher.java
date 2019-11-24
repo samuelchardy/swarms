@@ -123,8 +123,6 @@ public class                                                              Launch
 		//	particle_sys.draw();
 			try {
 				zone.run();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

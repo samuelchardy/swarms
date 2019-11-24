@@ -7,8 +7,7 @@ import java.lang.Math.*;
 
 //import processing.core.PVector;
 
-public class Node<InnerSimulation>
-{
+public class Node<InnerSimulation> {
     Node<InnerSimulation> parent;
     LinkedList<Node<InnerSimulation>> children;
     InnerSimulation simulation;
@@ -20,6 +19,7 @@ public class Node<InnerSimulation>
 
     /**
      * Constructor of Node, assigns internal values and initialises storage for children.
+     *
      * @param simulation
      */
     public Node(InnerSimulation simulation, double avgEstimatedValue, String name) {
@@ -33,6 +33,7 @@ public class Node<InnerSimulation>
 
     /**
      * Adds a node to the list of children for the calling parent node.
+     *
      * @param child
      * @return
      */
@@ -44,31 +45,31 @@ public class Node<InnerSimulation>
         return childNode;
     }
 
-    public void updateUCT(){
-        if(parent != null) {
+    public void updateUCT() {
+        if (parent != null) {
             this.uct = calcUCT(parent.timesVisited);
             parent.backPropagate();
-        }else{
+        } else {
             this.uct = calcUCT(this.timesVisited);
         }
     }
 
-    public double calcUCT(int parentVisits){
-        if(parent != null) {
+    public double calcUCT(int parentVisits) {
+        if (parent != null) {
             return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.parent.timesVisited)));
-        }else{
-            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.timesVisited+1)));
+        } else {
+            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.timesVisited + 1)));
         }
     }
 
     /**
      * Updates the stats of all older generation nodes (father/ grandfather etc) via recursion.
      */
-    public void backPropagate(){
+    public void backPropagate() {
         this.avgEstimatedValue = nodeSimValue;
         this.timesVisited++;
-        if(avgEstimatedValue != 0){
-            for(Node<InnerSimulation> child : children){
+        if (avgEstimatedValue != 0) {
+            for (Node<InnerSimulation> child : children) {
                 this.avgEstimatedValue += (child.avgEstimatedValue / children.size());
             }
         }
