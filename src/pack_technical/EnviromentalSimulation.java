@@ -32,7 +32,6 @@ public class EnviromentalSimulation extends Thread {
     FlockManager flock;
     double startTime = 0;
     int counter = 0;
-    boolean noWaitingThreads;
     CollisionHandler handler;
 
     public AI_type getSimulator() {
@@ -84,7 +83,7 @@ public class EnviromentalSimulation extends Thread {
         startTime = System.nanoTime();
 
         MCT = new Tree(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent));
-        enviroThread.start();
+        //enviroThread.start();
     }
 
     public void setAiToInnerSimulation(AI_type t) {
@@ -115,6 +114,7 @@ public class EnviromentalSimulation extends Thread {
         try {
             MCT.root = new Node(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent), 0, "root");
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
         System.out.println(bestVector);
@@ -124,24 +124,13 @@ public class EnviromentalSimulation extends Thread {
     public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker) {
         this.defenders = copyTheStateOfAttackBoids(defenders);
         this.attackBoids = copyTheStateOfAttackBoids(attacker);
-        noWaitingThreads = false;
-        try {
-            Thread.sleep(5);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        new Thread(this).start();
     }
 
     public void run() {
-        noWaitingThreads = true;
-        while (noWaitingThreads) {
+        while (true) {
             try {
                 Node<InnerSimulation> n = MCT.UCT(MCT.root, MCT.root);
-
                 //System.out.println("EXPANDED NODE> " + n.name);
-
                 InnerSimulation s = n.simulation;
                 InnerSimulation newSim = new InnerSimulation(simulator, s.copyTheStateOfAttackBoids(s.getSimulationClones()), s.cords, s.copyTheStateOfAttackBoids(s.getAttackBoids()), s.handler, s.parent);
                 newSim.restartTheSimulation(newSim.copyTheStateOfAttackBoids(attackBoids), newSim.copyTheStateOfAttackBoids(defenders));
@@ -157,12 +146,12 @@ public class EnviromentalSimulation extends Thread {
                 String nodeName = n.name + "." + n.children.size();
                 //System.out.println("\nADDING> " + nodeName + "\nLocation> " + newSim.attackBoids.get(0).location);
                 n.addChild(newSim, avgVal, nodeName);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
     public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
