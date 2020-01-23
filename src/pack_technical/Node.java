@@ -1,18 +1,14 @@
 package pack_technical;
 
-import java.util.List;
 import java.util.LinkedList;
-import java.util.ArrayList;
-import java.lang.Math.*;
 
-//import processing.core.PVector;
 
 public class Node<InnerSimulation> {
     Node<InnerSimulation> parent;
     LinkedList<Node<InnerSimulation>> children;
     InnerSimulation simulation;
 
-    int timesVisited = 2;
+    int timesVisited = 2, depth;
     double avgEstimatedValue = 0, nodeSimValue = 0;
     double uct = 0;
     String name = "Root";
@@ -22,13 +18,12 @@ public class Node<InnerSimulation> {
      *
      * @param simulation
      */
-    public Node(InnerSimulation simulation, double avgEstimatedValue, String name) {
+    public Node(InnerSimulation simulation, double simulationValue, String name, int depth) {
         this.simulation = simulation;
         this.children = new LinkedList<Node<InnerSimulation>>();
-        this.avgEstimatedValue = avgEstimatedValue;
-        this.nodeSimValue = avgEstimatedValue;
+        this.nodeSimValue = simulationValue;
         this.name = name;
-        updateUCT();
+        this.depth = depth;
     }
 
     /**
@@ -37,11 +32,11 @@ public class Node<InnerSimulation> {
      * @param child
      * @return
      */
-    public Node<InnerSimulation> addChild(InnerSimulation child, double avgEstimatedValue, String name) {
-        Node<InnerSimulation> childNode = new Node<InnerSimulation>(child, avgEstimatedValue, name);
+    public Node<InnerSimulation> addChild(InnerSimulation child, double simulationValue, String name) {
+        Node<InnerSimulation> childNode = new Node<InnerSimulation>(child, simulationValue, name, this.depth+1);
         childNode.parent = this;
         this.children.add(childNode);
-        updateUCT();
+        backPropagate();
         return childNode;
     }
 
@@ -66,22 +61,14 @@ public class Node<InnerSimulation> {
      * Updates the stats of all older generation nodes (father/ grandfather etc) via recursion.
      */
     public void backPropagate() {
-        this.avgEstimatedValue = nodeSimValue;
+        this.avgEstimatedValue = 0;
         this.timesVisited++;
-        if (avgEstimatedValue != 0) {
-            for (Node<InnerSimulation> child : children) {
-                this.avgEstimatedValue += (child.avgEstimatedValue / children.size());
-            }
+        for (Node<InnerSimulation> child : children) {
+            this.avgEstimatedValue += (child.nodeSimValue / children.size());
         }
+
         updateUCT();
+
     }
 
-
-    //ACCESSOR
-
-    /*
-    public PVector getAction(){
-        return simulation.MrLeandroVector;
-    }
-    */
 }

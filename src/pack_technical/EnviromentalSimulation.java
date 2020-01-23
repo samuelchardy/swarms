@@ -22,7 +22,7 @@ public class EnviromentalSimulation extends Thread {
     ArrayList<Boid_generic> attackBoids;
 
     Tree MCT;
-    Thread enviroThread = new Thread(this);
+    //Thread enviroThread = new Thread(this);
 
     AI_type simulator;
     PApplet parent;
@@ -31,7 +31,7 @@ public class EnviromentalSimulation extends Thread {
 
     FlockManager flock;
     double startTime = 0;
-    int counter = 0;
+    int maxTreeDepth = 10;
     CollisionHandler handler;
 
     public AI_type getSimulator() {
@@ -82,8 +82,8 @@ public class EnviromentalSimulation extends Thread {
         }
         startTime = System.nanoTime();
 
-        MCT = new Tree(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent));
-        //enviroThread.start();
+        MCT = new Tree(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent), maxTreeDepth);
+        new Thread(this).start();
     }
 
     public void setAiToInnerSimulation(AI_type t) {
@@ -109,10 +109,10 @@ public class EnviromentalSimulation extends Thread {
     }
 
     public PVector reutrnTargetVecotr() {
-        Node<InnerSimulation> bestSim = MCT.bestAvgVal(MCT.root, MCT.root);
+        Node<InnerSimulation> bestSim = MCT.bestAvgVal();
         PVector bestVector = bestSim.simulation.MrLeandroVector;
         try {
-            MCT.root = new Node(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent), 0, "root");
+            MCT.root = new Node(new InnerSimulation(simulator, copyTheStateOfAttackBoids(defenders), cords, copyTheStateOfAttackBoids(attackBoids), handler, parent), 0, "root", 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,22 +130,25 @@ public class EnviromentalSimulation extends Thread {
         while (true) {
             try {
                 Node<InnerSimulation> n = MCT.UCT(MCT.root, MCT.root);
-                //System.out.println("EXPANDED NODE> " + n.name);
+                System.out.println("EXPANDED NODE> " + n.name + "   NODE DEPTH> " + n.depth);
                 InnerSimulation s = n.simulation;
                 InnerSimulation newSim = new InnerSimulation(simulator, s.copyTheStateOfAttackBoids(s.getSimulationClones()), s.cords, s.copyTheStateOfAttackBoids(s.getAttackBoids()), s.handler, s.parent);
                 newSim.restartTheSimulation(newSim.copyTheStateOfAttackBoids(attackBoids), newSim.copyTheStateOfAttackBoids(defenders));
                 newSim.run1();
 
-                double avgVal = 0;
-                if (!newSim.attackBoids.get(0).isHasFailed()) {
-                    counter++;
-                    avgVal = 1 - Math.sin(newSim.theClosetDistance);
-                    System.out.println(counter + "  " + avgVal);
+                //NOT DONE NEED TO SET VALUES FROM INNERSIM PROPERLY
+                double simVal = 0;
+                if (newSim.attackBoids.get(0).isHasFailed()) {
+                    System.out.println("LOSING NODE");
+                    simVal = -1;
+                }else if(!newSim.willContinueSimulation){
+                    System.out.println("WINNING NODE");
+                    simVal = 1;
                 }
 
                 String nodeName = n.name + "." + n.children.size();
                 //System.out.println("\nADDING> " + nodeName + "\nLocation> " + newSim.attackBoids.get(0).location);
-                n.addChild(newSim, avgVal, nodeName);
+                n.addChild(newSim, simVal, nodeName);
             } catch (IOException e) {
                 e.printStackTrace();
             }

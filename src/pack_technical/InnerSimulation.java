@@ -26,6 +26,7 @@ public class InnerSimulation  {
     ArrayList<int[]> historyOfMovement = new ArrayList<>();
     PatrollingScheme scheme ;
 
+    boolean willContinueSimulation;
     Integer nextWaypoint;
     Random randG = new Random();
     PVector targetVector = new PVector(0,0);
@@ -143,7 +144,7 @@ public class InnerSimulation  {
 
     public void run1() throws IOException {
         if (simulating) {
-            boolean willContinueSimulation = true;
+            willContinueSimulation = true;
             boolean CheckVector = false ;
             PVector sumOfMassCentres = new PVector(0, 0);
             PVector theClosest = new PVector(0,0);
@@ -160,12 +161,12 @@ public class InnerSimulation  {
                 b1.move(simulationClones);
                 b1.update();
                 if (Math.abs(PVector.dist(b1.getLocation(), location)) < 16) {  // was 3
-                    attackBoids.get(0).setHasFailed(true);
+                    attackBoids.get(0).setHasFailed(true);                                                              //Has collided with a swarm agent
                 }
             }
 
             if((PVector.dist(location,new PVector(550,500))<=10 || PVector.dist(attackBoids.get(0).getLocation(),location)>=distance /*location.x-50<=0*/) && !attackBoids.get(0).isHasFailed()){
-                willContinueSimulation = false;
+                willContinueSimulation = false;                                                                         //Hit target (WIN)
             }
             velocity.limit(1);
             location.add(velocity.add(acceleration.add(MrLeandroVector)));

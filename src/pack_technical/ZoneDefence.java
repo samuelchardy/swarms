@@ -124,10 +124,12 @@ public class ZoneDefence implements Cloneable {
                 PVector attackVector = sim.reutrnTargetVecotr();
                 sim.updateBoids(boids, attackBoids);
 
+                /*
                 if(!sim.enviroThread.isInterrupted()){
                     sim.enviroThread.interrupt();
                     sim.enviroThread.start();
                 }
+                */
 
                 location.add(velocity.add(acceleration.add(attackVector)));
                 acceleration.mult(0);
