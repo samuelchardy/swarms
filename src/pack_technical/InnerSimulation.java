@@ -25,6 +25,7 @@ public class InnerSimulation  {
     ArrayList<int[]> cords ;
     ArrayList<int[]> historyOfMovement = new ArrayList<>();
     PatrollingScheme scheme ;
+    boolean victory = false;
 
     boolean willContinueSimulation;
     Integer nextWaypoint;
@@ -33,6 +34,8 @@ public class InnerSimulation  {
     PVector MrLeandroVector;
 
     float theClosetDistance;
+    float currentDistance;
+    double avgReward;
 
     public boolean isSimulating() {
         return simulating;
@@ -138,9 +141,6 @@ public class InnerSimulation  {
         createSimulationsAndRandomVectors();
     }
 
-    public PVector reutrnTargetVecotr(){
-        return targetVector;
-    }
 
     public void run1() throws IOException {
         if (simulating) {
@@ -160,7 +160,7 @@ public class InnerSimulation  {
             for (Boid_generic b1 : simulationClones) {
                 b1.move(simulationClones);
                 b1.update();
-                if (Math.abs(PVector.dist(b1.getLocation(), location)) < 16) {  // was 3
+                if (Math.abs(PVector.dist(b1.getLocation(), location)) < 10) {  // was 3
                     attackBoids.get(0).setHasFailed(true);                                                              //Has collided with a swarm agent
                 }
             }
@@ -168,11 +168,12 @@ public class InnerSimulation  {
             if((PVector.dist(location,new PVector(550,500))<=10 || PVector.dist(attackBoids.get(0).getLocation(),location)>=distance /*location.x-50<=0*/) && !attackBoids.get(0).isHasFailed()){
                 willContinueSimulation = false;                                                                         //Hit target (WIN)
             }
+
             velocity.limit(1);
             location.add(velocity.add(acceleration.add(MrLeandroVector)));
             acceleration.mult(0);
 
-            float currentDistance = Math.abs(PVector.dist(location,new PVector(550,500)));
+            currentDistance = Math.abs(PVector.dist(location,new PVector(550,500)));
             if (currentDistance < theClosetDistance && !attackBoids.get(0).isHasFailed()) {
                 theClosest = MrLeandroVector;
                 theClosetDistance = currentDistance;
@@ -189,6 +190,35 @@ public class InnerSimulation  {
 
             if (!willContinueSimulation)
                 simulating = false;
+
+            if(currentDistance < 15){
+                victory = true;
+            }
+
+
+            if(simulating && !victory) {
+                PVector locationRollOut = new PVector(location.x, location.y);
+                PVector rOacceleration = attackBoids.get(0).getAcceleration();
+                PVector rOvelocity = attackBoids.get(0).getVelocity();
+                avgReward = 0;
+                for(int j=0; j<500; j++){
+                    locationRollOut.add(rOvelocity.add(rOacceleration.add(MrLeandroVector)));
+                    //float rand = randG.nextFloat() * 1;
+                    //float rand2 = randG.nextFloat() * 1;
+                    //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1+2*rand, -1+2*rand2))));
+
+                    if(Math.abs(PVector.dist(locationRollOut, new PVector(550,500))) < 20){
+                        avgReward += 0.01;
+                    }else{
+                        for (Boid_generic b1 : simulationClones) {
+                            if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
+                                avgReward += -0.01;
+                            }
+                        }
+                    }
+                }
+            }
+
 
             if (simulating) {
                 for (Boid_generic b : simulationClones) {

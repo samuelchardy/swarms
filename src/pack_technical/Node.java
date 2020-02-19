@@ -8,8 +8,8 @@ public class Node<InnerSimulation> {
     LinkedList<Node<InnerSimulation>> children;
     InnerSimulation simulation;
 
-    int timesVisited = 2, depth;
-    double avgEstimatedValue = 0, nodeSimValue = 0;
+    int timesVisited = 1, depth;
+    double avgEstimatedValue = 0, nodeSimValue = 0, rolloutValue;
     double uct = 0;
     String name = "Root";
 
@@ -18,12 +18,13 @@ public class Node<InnerSimulation> {
      *
      * @param simulation
      */
-    public Node(InnerSimulation simulation, double simulationValue, String name, int depth) {
+    public Node(InnerSimulation simulation, double simulationValue, String name, int depth, double rolloutValue) {
         this.simulation = simulation;
         this.children = new LinkedList<Node<InnerSimulation>>();
         this.nodeSimValue = simulationValue;
         this.name = name;
         this.depth = depth;
+        this.rolloutValue = rolloutValue;
     }
 
     /**
@@ -32,11 +33,11 @@ public class Node<InnerSimulation> {
      * @param child
      * @return
      */
-    public Node<InnerSimulation> addChild(InnerSimulation child, double simulationValue, String name) {
-        Node<InnerSimulation> childNode = new Node<InnerSimulation>(child, simulationValue, name, this.depth+1);
+    public Node<InnerSimulation> addChild(InnerSimulation child, double simulationValue, String name, double cRolloutValue) {
+        Node<InnerSimulation> childNode = new Node<InnerSimulation>(child, simulationValue, name, this.depth+1, cRolloutValue);
         childNode.parent = this;
         this.children.add(childNode);
-        backPropagate();
+        childNode.backPropagate();
         return childNode;
     }
 
@@ -47,13 +48,19 @@ public class Node<InnerSimulation> {
         } else {
             this.uct = calcUCT(this.timesVisited);
         }
+
+        /*
+        for(Node<InnerSimulation> child : children){
+            child.uct = child.avgEstimatedValue + (1.414 * (Math.sqrt(2 * Math.log(this.timesVisited) / (child.timesVisited))));
+        }
+         */
     }
 
     public double calcUCT(int parentVisits) {
         if (parent != null) {
-            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.parent.timesVisited)));
+            return this.avgEstimatedValue + (1.414 * (Math.sqrt(2 * Math.log(parentVisits+1) / (this.timesVisited))));
         } else {
-            return this.avgEstimatedValue + (1.414 * Math.sqrt(2 * Math.log(parentVisits) * (this.timesVisited / this.timesVisited + 1)));
+            return this.avgEstimatedValue + (1.414 * (Math.sqrt(2 * Math.log(parentVisits+1) / (this.timesVisited))));
         }
     }
 
@@ -61,14 +68,17 @@ public class Node<InnerSimulation> {
      * Updates the stats of all older generation nodes (father/ grandfather etc) via recursion.
      */
     public void backPropagate() {
-        this.avgEstimatedValue = 0;
+        this.avgEstimatedValue = rolloutValue;
         this.timesVisited++;
-        for (Node<InnerSimulation> child : children) {
-            this.avgEstimatedValue += (child.nodeSimValue / children.size());
+        if(children.size() > 0) {
+            for (Node<InnerSimulation> child : children) {
+                this.avgEstimatedValue += (child.avgEstimatedValue / children.size());
+            }
+        }else{
+            this.avgEstimatedValue = nodeSimValue;
         }
 
         updateUCT();
-
     }
 
 }

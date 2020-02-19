@@ -53,7 +53,8 @@ public class ParameterGatherAndSetter {
 
         startTime=System.nanoTime();
         game.spawn_boids(0,amountOfBoids,new PVector(450,510));
-        game.spawn_boids(1,1,new PVector(Float.parseFloat(args[0]),Float.parseFloat(args[1])));
+        //game.spawn_boids(1,1,new PVector(Float.parseFloat(args[0]),Float.parseFloat(args[1])));
+        game.spawn_boids(1,1,new PVector(1200,510));
 
         createDifficulties();
     }
@@ -65,6 +66,15 @@ public class ParameterGatherAndSetter {
 
         hard.add(new PVector(550,535));
         hard.add(new PVector(550,485));
+
+        /*
+        hard.add(new PVector(20,20));
+        hard.add(new PVector(1400,20));
+        hard.add(new PVector(1400,900));
+        hard.add(new PVector(20,900));
+        hard.add(new PVector(500,500));
+         */
+
 
         easy.add(new PVector(450,550));
         easy.add(new PVector(650,500));

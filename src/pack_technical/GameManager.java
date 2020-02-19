@@ -43,7 +43,6 @@ public class GameManager {
 		this.team_number = g.getTeam_number();
 		this.parent = g.getParent();
 		this.flock_ref = g.getFlock_ref();
-
 	}
 
 	public GameManager(PApplet p, FlockManager f, DisplayManager d) {

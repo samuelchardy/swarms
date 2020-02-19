@@ -83,7 +83,6 @@ public class ZoneDefence implements Cloneable {
                 timer++;
 
                 if (timer >= 3) {
-                    System.out.println("I went in");
                     sim.restartTheSimulation(attackBoids, boids);
                     sim.setSimulating(true);
                     timer = 0;
@@ -121,15 +120,9 @@ public class ZoneDefence implements Cloneable {
                 PVector location = be1.getLocation();
                 velocity.limit(1);
 
+                System.out.println("Asking for target vector!");
                 PVector attackVector = sim.reutrnTargetVecotr();
                 sim.updateBoids(boids, attackBoids);
-
-                /*
-                if(!sim.enviroThread.isInterrupted()){
-                    sim.enviroThread.interrupt();
-                    sim.enviroThread.start();
-                }
-                */
 
                 location.add(velocity.add(acceleration.add(attackVector)));
                 acceleration.mult(0);
@@ -144,6 +137,7 @@ public class ZoneDefence implements Cloneable {
             if (defend) {
                 PVector acceleration = be.getAcceleration();
                 PVector velocity = be.getVelocity();
+                //PVector velocity = new PVector(0,0);
                 PVector location = be.getLocation();
                 velocity.limit(1);
                 location.add(velocity.add(patrolling.patrol(be.getLocation(), be)));
