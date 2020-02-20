@@ -1,5 +1,7 @@
 package pack_technical;
 
+import processing.core.PVector;
+
 public class Tree {
     Node<InnerSimulation> root;
     int maxTreeDepth;

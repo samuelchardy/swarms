@@ -1,5 +1,7 @@
 package pack_technical;
 
+import processing.core.PVector;
+
 import java.util.LinkedList;
 
 
@@ -13,6 +15,8 @@ public class Node<InnerSimulation> {
     double uct = 0;
     String name = "Root";
 
+    PVector[] actions = new PVector[10];
+
     /**
      * Constructor of Node, assigns internal values and initialises storage for children.
      *
@@ -25,6 +29,7 @@ public class Node<InnerSimulation> {
         this.name = name;
         this.depth = depth;
         this.rolloutValue = rolloutValue;
+        this.actions = actions;
     }
 
     /**

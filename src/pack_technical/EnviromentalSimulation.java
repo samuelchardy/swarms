@@ -158,8 +158,9 @@ public class EnviromentalSimulation extends Thread {
                 InnerSimulation s = n.simulation;
                 InnerSimulation newSim = new InnerSimulation(simulator, s.copyTheStateOfAttackBoids(s.getSimulationClones()), s.cords, s.copyTheStateOfAttackBoids(s.getAttackBoids()), s.handler, s.parent);
                 //newSim.restartTheSimulation(newSim.copyTheStateOfAttackBoids(attackBoids), newSim.copyTheStateOfAttackBoids(defenders));
-                newSim.run1();
+                newSim.run1(n.children.size());
                 System.out.println("Rollout avg val: " + newSim.avgReward);
+
                 if(newSim.avgReward < 0){
                     dangerClose = true;
                 }else{
