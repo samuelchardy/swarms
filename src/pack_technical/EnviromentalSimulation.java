@@ -129,8 +129,8 @@ public class EnviromentalSimulation extends Thread {
             e.printStackTrace();
         }
 
-        System.out.println("Node " + bestSim.name + ": " + bestSim.nodeSimValue + "   " + bestSim.rolloutValue + "   " + bestSim.avgEstimatedValue);
-        System.out.println("Target Vector: " + bestVector + "\n");
+        //System.out.println("Node " + bestSim.name + ": " + bestSim.nodeSimValue + "   " + bestSim.rolloutValue + "   " + bestSim.avgEstimatedValue);
+        //System.out.println("Target Vector: " + bestVector + "\n");
 
         if(actionCounter > 10){
             System.gc();
@@ -158,9 +158,8 @@ public class EnviromentalSimulation extends Thread {
                 InnerSimulation s = n.simulation;
                 InnerSimulation newSim = new InnerSimulation(simulator, s.copyTheStateOfAttackBoids(s.getSimulationClones()), s.cords, s.copyTheStateOfAttackBoids(s.getAttackBoids()), s.handler, s.parent);
                 //newSim.restartTheSimulation(newSim.copyTheStateOfAttackBoids(attackBoids), newSim.copyTheStateOfAttackBoids(defenders));
-                newSim.run1(n.children.size());
-                System.out.println("Rollout avg val: " + newSim.avgReward);
-
+                newSim.run1();
+                //System.out.println("Rollout avg val: " + newSim.avgReward);
                 if(newSim.avgReward < 0){
                     dangerClose = true;
                 }else{
@@ -169,13 +168,13 @@ public class EnviromentalSimulation extends Thread {
 
                 double simVal = 0;
                 if (newSim.attackBoids.get(0).isHasFailed()) {
-                    System.out.println("LOSING NODE");
+                    //System.out.println("LOSING NODE");
                     simVal = -100 ;
                 } else if (newSim.victory) {
-                    System.out.println("WINNING NODE");
+                    //System.out.println("WINNING NODE");
                     simVal = 1;
                 } else {
-                    System.out.println("EVEN NODE");
+                    //System.out.println("EVEN NODE");
                     if(!dangerClose) {
                         simVal = 0.5 - (newSim.currentDistance / 6000);
                     }

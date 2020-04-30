@@ -37,11 +37,6 @@ public class InnerSimulation  {
     float currentDistance;
     double avgReward;
 
-    PVector[] actions = {new PVector(0, -1), new PVector( (float)0.5, -1), new PVector(1, -1),
-            new PVector(1, 0), new PVector(1, (float)0.5), new PVector(1, 1),
-            new PVector(0, 1), new PVector((float)-0.5, 1), new PVector(-1, 1),
-            new PVector(-1, 0), new PVector(-1, (float)-0.5), new PVector(-1, -1),};
-
     public boolean isSimulating() {
         return simulating;
     }
@@ -52,6 +47,12 @@ public class InnerSimulation  {
 
     boolean simulating=true;
 
+    public void createSimulationsAndRandomVectors(){
+        float rand = randG.nextFloat() * 1;
+        float rand2 = randG.nextFloat() * 1;
+        MrLeandroVector = new PVector(-1+2*rand, -1+2*rand2);
+        MrLeandroVector.setMag(0.1f);
+    }
     public void restartTheSimulation(ArrayList<Boid_generic> attackBoidss,ArrayList<Boid_generic> defenders ) {
         attackBoids.clear();
         simulationClones.clear();
@@ -64,6 +65,7 @@ public class InnerSimulation  {
             g.setAi(ai);
         }
         scheme.restartIterator();
+        //System.out.println(attackBoidss.get(0).getLocation());
         float shortestDistance = 3000;
         float shortestVectorAngle=0;
         float nextToShortestVectorAngle=0;
@@ -91,6 +93,7 @@ public class InnerSimulation  {
         }
 
         scheme.currentPosition = nextWaypoint;
+        createSimulationsAndRandomVectors();
     }
 
 
@@ -135,15 +138,11 @@ public class InnerSimulation  {
         }
 
         scheme.currentPosition = nextWaypoint;
+        createSimulationsAndRandomVectors();
     }
 
 
-    public void run1(int action) throws IOException {
-        float rand = randG.nextFloat() * actions[action].x;
-        float rand2 = randG.nextFloat() * actions[action].y;
-        this.MrLeandroVector = new PVector(2*rand, 2*rand2);
-        this.MrLeandroVector.setMag(0.1f);
-
+    public void run1() throws IOException {
         if (simulating) {
             willContinueSimulation = true;
             boolean CheckVector = false ;
@@ -192,32 +191,34 @@ public class InnerSimulation  {
             if (!willContinueSimulation)
                 simulating = false;
 
-            if(currentDistance < 10){
+            if(currentDistance < 15){
                 victory = true;
             }
 
 
             if(simulating && !victory) {
+                PVector locationRollOut = new PVector(location.x, location.y);
+                PVector rOacceleration = attackBoids.get(0).getAcceleration();
+                PVector rOvelocity = attackBoids.get(0).getVelocity();
                 avgReward = 0;
-                for(int u=0; u<10; u++) {
-                    PVector locationRollOut = new PVector(location.x, location.y);
-                    PVector rOacceleration = attackBoids.get(0).getAcceleration();
-                    PVector rOvelocity = attackBoids.get(0).getVelocity();
+                for(int j=0; j<1000; j++){
+                    locationRollOut.add(rOvelocity.add(rOacceleration.add(MrLeandroVector)));
+                    //float rand = randG.nextFloat() * 1;
+                    //float rand2 = randG.nextFloat() * 1;
+                    //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1+2*rand, -1+2*rand2))));
 
-                    for (int j = 0; j < 500; j++) {
-                        locationRollOut.add(rOvelocity.add(rOacceleration.add(MrLeandroVector)));
-                        //float rand = randG.nextFloat() * 1;
-                        //float rand2 = randG.nextFloat() * 1;
-                        //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1 + 2 * rand, -1 + 2 * rand2))));
-
-                        if (Math.abs(PVector.dist(locationRollOut, new PVector(550, 500))) < 20) {
-                            avgReward += 0.01;
-                        } else {
-                            for (Boid_generic b1 : simulationClones) {
-                                if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
-                                    avgReward += -0.01;
-                                }
+                    if(Math.abs(PVector.dist(locationRollOut, new PVector(550,500))) < 20){
+                        avgReward = 1;
+                        break;
+                    }else{
+                        for (Boid_generic b1 : simulationClones) {
+                            if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
+                                avgReward = -1;
+                                break;
                             }
+                        }
+                        if(avgReward < 0){
+                            break;
                         }
                     }
                 }

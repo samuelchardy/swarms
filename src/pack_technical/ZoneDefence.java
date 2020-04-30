@@ -120,7 +120,7 @@ public class ZoneDefence implements Cloneable {
                 PVector location = be1.getLocation();
                 velocity.limit(1);
 
-                System.out.println("Asking for target vector!");
+                //System.out.println("Asking for target vector!");
                 PVector attackVector = sim.reutrnTargetVecotr();
                 sim.updateBoids(boids, attackBoids);
 

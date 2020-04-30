@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MyCode:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MyCode_jar</output-path>
+    <root id="archive" name="MyCode.jar">
+      <element id="module-output" name="MyCode" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/Adaptive Flocking.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
